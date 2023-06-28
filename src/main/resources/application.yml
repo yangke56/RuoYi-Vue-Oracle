@@ -140,3 +140,8 @@ gen:
   autoRemovePre: false
   # 表前缀（生成类名不会包含表前缀，多个用逗号分隔）
   tablePrefix: sys_
+
+#短信发送及校验
+sms:
+  sendYzmUrl: http://10.10.17.74:8099/mw_sms/services/api/valiCodeService/22/33/44/55/
+  validationYzmUrl: http://10.10.17.74:8099/mw_sms/services/api/valiCodeService/

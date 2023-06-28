@@ -1,7 +1,12 @@
 package com.ruoyi.framework.security.service;
 
 import javax.annotation.Resource;
+
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.ruoyi.common.utils.http.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,9 +69,11 @@ public class SysLoginService
     public String login(String username, String password, String code, String uuid)
     {
         // 验证码校验
-        validateCaptcha(username, code, uuid);
+//        validateCaptcha(username, code, uuid);
         // 登录前置校验
-        loginPreCheck(username, password);
+//        loginPreCheck(username, password);
+        //验证短信验证码
+        validationYzm(code, uuid);
         // 用户验证
         Authentication authentication = null;
         try
@@ -98,6 +105,26 @@ public class SysLoginService
         recordLoginInfo(loginUser.getUserId());
         // 生成token
         return tokenService.createToken(loginUser);
+    }
+
+    @Value("${sms.validationYzmUrl}")
+    public String validationYzmUrl;
+
+    /**
+     * 验证短信验证码
+     */
+    public void validationYzm(String yzm, String yzmHidden) {
+        String url = validationYzmUrl+yzmHidden+"/"+yzm;
+        /**测试 免短信验证码登陆 直接返回成功报文  yk*/
+//        String yzmSeqjson = "{\"code\":\"0\",\"msg\":\"验证成功\"}";
+        String yzmSeqjson = HttpUtils.sendPost(url,"");
+        if(StringUtils.isEmpty(yzmSeqjson)){
+            throw new CaptchaExpireException();
+        }
+        JSONObject json = JSON.parseObject(yzmSeqjson);
+        if(!json.getString("code").equals("0")){
+            throw new CaptchaException();
+        }
     }
 
     /**
