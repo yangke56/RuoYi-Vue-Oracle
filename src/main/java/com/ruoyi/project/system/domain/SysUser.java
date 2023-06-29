@@ -89,6 +89,10 @@ public class SysUser extends BaseEntity
     /** 角色ID */
     private Long roleId;
 
+    /** 用户所属区域 */
+    @Excel(name = "用户所属区域", readConverterExp = "+86=大陆,+852=香港")
+    private String region;
+
     public SysUser()
     {
 
@@ -297,6 +301,14 @@ public class SysUser extends BaseEntity
         this.roleId = roleId;
     }
 
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -319,6 +331,7 @@ public class SysUser extends BaseEntity
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
             .append("dept", getDept())
+            .append("region", getRegion())
             .toString();
     }
 }

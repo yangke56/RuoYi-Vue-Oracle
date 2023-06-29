@@ -50,10 +50,10 @@ public class SysLoginController
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
-        String pwd = "admin123";
+//        String pwd = "admin123";
         AjaxResult ajax = AjaxResult.success();
         // 生成令牌
-        String token = loginService.login(loginBody.getUsername(), pwd, loginBody.getCode(),loginBody.getUuid());
+        String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),loginBody.getUuid());
         ajax.put(Constants.TOKEN, token);
         return ajax;
     }
@@ -66,21 +66,9 @@ public class SysLoginController
      * 发送短信验证码
      */
     @PostMapping("/sendYzm")
-    @ResponseBody
-    public AjaxResult sendYzm(String phonenumber) {
-        log.info("phonenumber_______:"+phonenumber);
+    public AjaxResult sendYzm(@RequestBody LoginBody loginBody) {
         AjaxResult ajax = AjaxResult.error();
-        String template = "您的验证码为：${yzm}，请勿告知他人。如非您本人操作，请忽略本短信。";
-        String EncoderContent = "";
-        try {
-            EncoderContent = URLEncoder.encode(template, "GBK");
-            EncoderContent = URLEncoder.encode(EncoderContent, "GBK");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        log.info("sendYzmUrl_______:"+sendYzmUrl);
-        String yzmSeqjson = HttpUtils.sendPost(sendYzmUrl + phonenumber + "/" + EncoderContent, "");
-//        String yzmSeqjson = "{\"code\":\"5\",\"msg\":10}";
+        String yzmSeqjson = loginService.sendYzmCheck(loginBody.getUsername(),loginBody.getPassword());
         if(StringUtils.isEmpty(yzmSeqjson)){
             ajax.put("code","99");
             ajax.put("msg","获取验证码失败");
@@ -88,8 +76,7 @@ public class SysLoginController
         }
         ajax = AjaxResult.success();
         JSONObject json = JSON.parseObject(yzmSeqjson);
-//        ajax.put("code",json.getString("code"));
-        ajax.put("msg",json.getString("msg"));
+        ajax.put("uuid", json.getString("msg"));
         return ajax;
     }
 
